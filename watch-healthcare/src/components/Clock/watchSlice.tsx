@@ -59,6 +59,10 @@ const watchSlice = createSlice({
 				state.timeChanged = true;
 			}
 		},
+		resetTime: (state, action) => {
+			state.time = action.payload;
+			state.timeChanged = false;
+		},
 	},
 });
 
@@ -69,7 +73,31 @@ export function getCurrentTime() {
 	const seconds = now.getSeconds().toString().padStart(2, "0");
 	return `${hours}:${minutes}:${seconds}`;
 }
+export function addOneSecond(time: string): string {
+	const [hours, minutes, seconds] = time.split(":").map(Number);
 
-export const { toggleEditMode, updateTime, increaseHour, increaseMinute } =
-	watchSlice.actions;
+	let newSeconds = seconds + 1;
+	let newMinutes = minutes;
+	let newHours = hours;
+
+	if (newSeconds === 60) {
+		newSeconds = 0;
+		newMinutes += 1;
+		if (newMinutes === 60) {
+			newMinutes = 0;
+			newHours = (newHours + 1) % 24;
+		}
+	}
+
+	const pad = (num: number): string => (num < 10 ? `0${num}` : `${num}`);
+	return `${pad(newHours)}:${pad(newMinutes)}:${pad(newSeconds)}`;
+}
+
+export const {
+	toggleEditMode,
+	updateTime,
+	increaseHour,
+	increaseMinute,
+	resetTime,
+} = watchSlice.actions;
 export default watchSlice.reducer;
